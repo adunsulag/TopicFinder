@@ -5,10 +5,12 @@ import java.util.Map;
 /** Runs unit tests on the Finder class. */
 public class FinderTest {
 
-  /** Main method to run the unit tests on the Finder class. **/
-  public static void main(String[] args) {
+  /** Main method to run the unit tests on the Finder class.
+      @throws Exception if finder throws an exception
+     **/
+  public static void main(String[] args) throws Exception {
     Finder finder = new Finder();
-    Map<String, List<Topic>> results = finder.run("topics.txt", "files");
+    Map<String, List<Topic>> results = finder.run("finder.properties");
 
     // check the topics
     List<Topic> topics = finder.getTopics();

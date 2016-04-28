@@ -1,4 +1,5 @@
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -10,57 +11,94 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 /**
  * Given a topic file and a directory of gospel files it lists out each file and the gospel topics
  * found in each file.
  * @author Stephen Nielson / smnche6
+ * @Collaborator: Benjamin Wright
  */
 class Finder {
   /** The topics to find in the gospel files. **/
   private List<Topic> topics;
 
+  
+  /** 
+    * Given a filename, it loads the properties file from that filename.
+    * @return The properties that have been loaded from the properties file.  Null if we couldn't open the stream.
+    * @throws Exception if the file can not be read or could not be found.
+    */
+  private Properties loadPropertiesFromFile(String filename) throws Exception {
+    try {
+      Properties properties = new Properties();
+      FileReader fr = new FileReader(filename);
+      properties.load(fr);
+      return properties;
+    }
+    catch (IOException ex) {
+      throw new Exception("Could not load properties file from filename " + filename, ex); 
+    }
+  }
+
   /**
    * Lists each gospel file in a directory with their associated topics referenced in the file.
    */
   public static void main(String[] args) {
-    if (args.length < 2) {
+    if (args.length < 1) {
       System.out.println("Error: Incorrect program usage please call the program "
-          + "using Finder <topicFile> <gospelFilesDirectory>");
+          + "using Finder <properties file>");
+      return;
+    }
+    if (args[0].trim().isEmpty()) {
+      System.out.println("Error: Incorrect program usage please call the program "
+          + "using Finder <properties file>");
       return;
     }
 
-    String topicFile = args[0];
-    String gospelFilesDirectory = args[1];
+    // <topicFile> <gospelFilesDirectory>
 
-    Finder finder = new Finder();
-    Map<String, List<Topic>> results = finder.run(topicFile, gospelFilesDirectory);
+    //String topicFile = args[0];
 
-    for (String filename : results.keySet()) {
-      System.out.print(filename + " ");
-      List<Topic> topics = results.get(filename);
-      // example string joining from: http://stackoverflow.com/a/669165
-      String delim = "";
-      for (Topic topic : topics) {
-        System.out.print(delim + topic.getName());
-        delim = ",";
+    try { 
+      Finder finder = new Finder();
+      Map<String, List<Topic>> results = finder.run(args[0]);
+
+      for (String filename : results.keySet()) {
+        System.out.print(filename + " ");
+        List<Topic> topics = results.get(filename);
+        // example string joining from: http://stackoverflow.com/a/669165
+        String delim = "";
+        for (Topic topic : topics) {
+          System.out.print(delim + topic.getName());
+          delim = ",";
+        }
+        System.out.println();
       }
-      System.out.println();
+    } catch (Exception ex) {
+      System.err.println("Error occurred and could not run finder.  Detailed error below:");
+      ex.printStackTrace();
     }
   }
 
   /** 
    * Return a map of files in the gospel files directory to the topics they 
    * contained as listed in the topicFile. 
+   * @throws Exception if the Finder properties could not be loaded or the topics file could not be found 
    */
-  public Map<String, List<Topic>> run(String topicFile, String gospelFilesDirectory) {
+  public Map<String, List<Topic>> run(String propertiesFilename) throws Exception {
+
+    Properties properties = loadPropertiesFromFile(propertiesFilename);
+
+    String topicFile = properties.getProperty("topicFile");
+    String gospelFilesDirectory = properties.getProperty("gospelFilesDirectory");
+
     // given a topic file create a collection of topics contained in that topic file
     // store that collection internally
     this.topics = getTopicsFromFile(topicFile);
     if (this.topics == null) {
-      System.err.println("Error: Could not retrieve topics from file.  Cannot continue.");
-      return null;
+      throw new Exception("Error: Could not retrieve topics from file.  Cannot continue.");
     }
 
     // now get a list of all the file names in the directory
