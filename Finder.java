@@ -46,14 +46,15 @@ class Finder {
    * Lists each gospel file in a directory with their associated topics referenced in the file.
    */
   public static void main(String[] args) {
+    String instructions = "Error: Incorrect program usage please call the program "
+      + "using Finder <properties file>. Or with the jar file java -jar GospelTopicsFinder.jar <properties file>";
     if (args.length < 1) {
-      System.out.println("Error: Incorrect program usage please call the program "
-          + "using Finder <properties file>");
+      System.out.println(instructions);
+          
       return;
     }
     if (args[0].trim().isEmpty()) {
-      System.out.println("Error: Incorrect program usage please call the program "
-          + "using Finder <properties file>");
+      System.out.println(instructions);
       return;
     }
 
