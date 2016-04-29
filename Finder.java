@@ -27,7 +27,8 @@ class Finder {
   
   /** 
     * Given a filename, it loads the properties file from that filename.
-    * @return The properties that have been loaded from the properties file.  Null if we couldn't open the stream.
+    * @return The properties that have been loaded from the properties file.  
+    *          Null if we couldn't open the stream.
     * @throws Exception if the file can not be read or could not be found.
     */
   private Properties loadPropertiesFromFile(String filename) throws Exception {
@@ -36,8 +37,7 @@ class Finder {
       FileReader fr = new FileReader(filename);
       properties.load(fr);
       return properties;
-    }
-    catch (IOException ex) {
+    } catch (IOException ex) {
       throw new Exception("Could not load properties file from filename " + filename, ex); 
     }
   }
@@ -85,7 +85,8 @@ class Finder {
   /** 
    * Return a map of files in the gospel files directory to the topics they 
    * contained as listed in the topicFile. 
-   * @throws Exception if the Finder properties could not be loaded or the topics file could not be found 
+   * @throws Exception if the Finder properties could not be loaded 
+   *         or the topics file could not be found 
    */
   public Map<String, List<Topic>> run(String propertiesFilename) throws Exception {
 
@@ -157,7 +158,7 @@ class Finder {
     return topicsByFile;
   }
 
-  /** Returns the name of just the file 
+  /** Returns the name of just the file.
     * @param filePath the path to the file
     * @return just the name and extension part of the file
     **/
