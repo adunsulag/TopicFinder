@@ -10,7 +10,7 @@ public class FinderTest {
      **/
   public static void main(String[] args) throws Exception {
     Finder finder = new Finder();
-    Map<String, List<Topic>> results = finder.run("finder.properties");
+    Map<String, List<Topic>> results = finder.run(".");
 
     // check the topics
     List<Topic> topics = finder.getTopics();

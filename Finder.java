@@ -24,47 +24,25 @@ class Finder {
   /** The topics to find in the gospel files. **/
   private List<Topic> topics;
 
-  
-  /** 
-    * Given a filename, it loads the properties file from that filename.
-    * @return The properties that have been loaded from the properties file.  
-    *          Null if we couldn't open the stream.
-    * @throws Exception if the file can not be read or could not be found.
-    */
-  private Properties loadPropertiesFromFile(String filename) throws Exception {
-    try {
-      Properties properties = new Properties();
-      FileReader fr = new FileReader(filename);
-      properties.load(fr);
-      return properties;
-    } catch (IOException ex) {
-      throw new Exception("Could not load properties file from filename " + filename, ex); 
-    }
-  }
-
   /**
    * Lists each gospel file in a directory with their associated topics referenced in the file.
    */
   public static void main(String[] args) {
-    String instructions = "Error: Incorrect program usage please call the program "
-      + "using Finder <properties file>. Or with the jar file java -jar GospelTopicsFinder.jar <properties file>";
-    if (args.length < 1) {
+    String configDirectory = System.getProperty("finder.properties"); 
+
+    String instructions = "Error: Missing system property finder.properties.  "
+        + "Please make sure this property is set.  To set this property from the "
+        + "command line you can do the following "
+        + "java -Dfinder.properties=directoryOfPropertiesFile";
+    
+    if (configDirectory == null || configDirectory.isEmpty()) {
       System.out.println(instructions);
-          
       return;
     }
-    if (args[0].trim().isEmpty()) {
-      System.out.println(instructions);
-      return;
-    }
-
-    // <topicFile> <gospelFilesDirectory>
-
-    //String topicFile = args[0];
 
     try { 
       Finder finder = new Finder();
-      Map<String, List<Topic>> results = finder.run(args[0]);
+      Map<String, List<Topic>> results = finder.run(configDirectory);
 
       for (String filename : results.keySet()) {
         System.out.print(filename + " ");
@@ -89,9 +67,9 @@ class Finder {
    * @throws Exception if the Finder properties could not be loaded 
    *         or the topics file could not be found 
    */
-  public Map<String, List<Topic>> run(String propertiesFilename) throws Exception {
+  public Map<String, List<Topic>> run(String propertiesFilePath) throws Exception {
 
-    Properties properties = loadPropertiesFromFile(propertiesFilename);
+    Properties properties = loadPropertiesFromDirectoryPath(propertiesFilePath);
 
     String topicFile = properties.getProperty("topicFile");
     String gospelFilesDirectory = properties.getProperty("gospelFilesDirectory");
@@ -107,6 +85,11 @@ class Finder {
     List<String> gospelFilenames = getGospelFilenamesFromDirectory(gospelFilesDirectory);
 
     return generateTopicsByFile(gospelFilenames);
+  }
+
+  /** Return the topics found during the finder. */
+  public List<Topic> getTopics() {
+    return this.topics;
   }
 
   /**
@@ -222,9 +205,28 @@ class Finder {
 
     return new Topic(topicName, lcKeywords);
   }
+  
+  /** 
+    * Given a directory path it loads the 'finder.properties' file from that path.
+    * @return The properties that have been loaded from the properties file.  
+    *          Null if we couldn't open the stream.
+    * @throws Exception if the file can not be read or could not be found.
+    */
+  private Properties loadPropertiesFromDirectoryPath(String path) throws Exception {
+    try {
+      Properties properties = new Properties();
 
-  /** Return the topics found during the finder. */
-  public List<Topic> getTopics() {
-    return this.topics;
+      // to handle the tilde for files we refer to this answer http://stackoverflow.com/a/7163446
+      if (path.startsWith("~" + File.separator)) {
+        path = System.getProperty("user.home") + path.substring(1);
+      }
+
+      FileReader fr = new FileReader(Paths.get(path, "finder.properties").toFile());
+      properties.load(fr);
+      return properties;
+    } catch (IOException ex) {
+      throw new Exception("Could not load properties file from directory " + path, ex); 
+    }
   }
+
 }
