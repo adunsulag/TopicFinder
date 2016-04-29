@@ -6,13 +6,11 @@ import java.util.Set;
 public class TopicTest {
   /** Runs unit tests on Topic class. **/
   public static void main(String[] args) {
-    Topic topic = new Topic("Jesus", Arrays.asList("Savior", "Christ", "Charity"));
+    Topic topic = new Topic("Jesus", Arrays.asList("Savior", "Christ", "Charity", "Bread of Life"));
     
-    Assert.assertTrue("Christ should be in topic", topic.hasKeyword("Christ"));
-    Assert.assertTrue("Satan should not be in topic", !topic.hasKeyword("Satan"));
-    Set<String> set1 = new HashSet<String>(Arrays.asList( "Savior", "Blasphemer", "Pharisee" ));
-    Set<String> set2 = new HashSet<String>(Arrays.asList("Judas", "Blasphemer", "Pharisee" ));
-    Assert.assertTrue("Topic has at least one of the keywords", topic.containsAnyKeyword(set1));
-    Assert.assertTrue("Topic should not have any of the keywords", !topic.containsAnyKeyword(set2));
+    Assert.assertTrue("Content should have topic", topic.isInContent("Christ is the one we should turn to."));
+    Assert.assertTrue("Content should have topic with multiple words", topic.isInContent("The Bread of Life is source of all happiness."));
+    Assert.assertTrue("Content should have not have topic with partial words", !topic.isInContent("The Bread of Water is not the source of all happiness."));
+    Assert.assertTrue("Satan should not be in topic", !topic.isInContent("Satan is not the one we should turn to"));
   }
 }
